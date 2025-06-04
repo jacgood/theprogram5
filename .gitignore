@@ -1,0 +1,66 @@
+# Exclude sensitive data and application files
+html/
+WebCatalogEngine/
+apache2/
+
+# Exclude logs and runtime files
+logs/
+*.log
+
+# Exclude temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Exclude OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Exclude SSL certificates and keys
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Exclude database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Exclude backup files
+*.bak
+*.backup
+*.old
+
+# Exclude environment files with potential secrets
+.env
+.env.local
+.env.production
+
+# Exclude Docker volumes data
+docker-volumes/
+
+# Node modules (if any)
+node_modules/
+
+# Exclude any password or user files
+*.passwd
+user.passwd
+
+# Exclude any configuration files that might contain sensitive data
+*secret*
+*password*
+*credential*

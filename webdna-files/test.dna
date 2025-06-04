@@ -1,0 +1,12 @@
+<html>
+<head>
+<title>WebDNA Test Page</title>
+</head>
+<body>
+<h1>WebDNA Test Page</h1>
+<p>Current Date: [date]</p>
+<p>Current Time: [time]</p>
+<p>Math Test: 5 + 3 = [math]5+3[/math]</p>
+<p>WebDNA Version: [version]</p>
+</body>
+</html>
