@@ -19,10 +19,41 @@ services:
       - APACHE_LOG_DIR=/var/log/apache2
       - HOST_UID=1000
       - HOST_GID=1000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=webdna_main
+      - DB_USER=webdna_user
+      - DB_PASSWORD=webdna_secure_password_2024
+    depends_on:
+      - postgres
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/WebCatalog"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s 
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: webdna-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../config/postgres:/docker-entrypoint-initdb.d:ro
+    environment:
+      - POSTGRES_DB=webdna_main
+      - POSTGRES_USER=webdna_user
+      - POSTGRES_PASSWORD=webdna_secure_password_2024
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webdna_user -d webdna_main"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data: 

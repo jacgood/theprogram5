@@ -13,7 +13,8 @@
       "Bash(mv:*)",
       "Bash(git commit:*)",
       "Bash(./monitoring/scripts/system_monitor.sh:*)",
-      "Bash(./monitoring/scripts/performance_dashboard.sh:*)"
+      "Bash(./monitoring/scripts/performance_dashboard.sh:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

@@ -39,6 +39,7 @@ Thumbs.db
 *.db
 *.sqlite
 *.sqlite3
+*.sql
 
 # Exclude backup files
 *.bak

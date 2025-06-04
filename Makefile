@@ -88,6 +88,27 @@ benchmark-quick: ## Run quick performance test
 	@echo "Running quick performance test..."
 	@./performance/tools/benchmark.sh single http://localhost:8080/theprogram/
 
+# Database commands
+db-start: ## Start PostgreSQL database
+	@echo "Starting PostgreSQL database..."
+	@cd deploy && docker compose up -d postgres
+
+db-stop: ## Stop PostgreSQL database
+	@echo "Stopping PostgreSQL database..."
+	@cd deploy && docker compose stop postgres
+
+db-test: ## Test database connection and show status
+	@echo "Testing database connection..."
+	@./scripts/test_postgres.sh
+
+db-connect: ## Connect to main database
+	@echo "Connecting to PostgreSQL..."
+	@docker exec -it webdna-postgres psql -U webdna_user -d webdna_main
+
+db-import: ## Import MySQL data to PostgreSQL (one-time setup)
+	@echo "Importing MySQL data to PostgreSQL..."
+	@./scripts/import_to_postgres.sh
+
 # Project setup
 setup: ## Initial project setup
 	@echo "Setting up project..."
