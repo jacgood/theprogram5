@@ -41,6 +41,11 @@ RUN apt-get update && apt-get install -y \
     apache2 \
     curl \
     ca-certificates \
+    # PHP and extensions
+    php \
+    libapache2-mod-php \
+    php-pgsql \
+    php-mysql \
     # Security and monitoring tools
     htop \
     nano \
@@ -64,8 +69,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
-# Enable required Apache modules
-RUN a2enmod rewrite headers webdna speling alias dir
+# Enable required Apache modules including PHP
+RUN a2enmod rewrite headers webdna speling alias dir php8.1
 
 # Create non-root user for application (if needed in the future)
 RUN groupadd -r webdna && useradd -r -g webdna webdna
