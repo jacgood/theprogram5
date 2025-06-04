@@ -1,16 +1,18 @@
 services:
   webdna-server:
-    build: .
+    build:
+      context: ..
+      dockerfile: build/docker/Dockerfile
     container_name: webdna-server
     ports:
       - "8080:80"
     volumes:
       # Mount legacy server html folder as document root
-      - ./html:/var/www/html:rw
+      - ../html:/var/www/html:rw
       # Mount Apache logs for debugging
-      - ./logs:/var/log/apache2:rw
+      - ../logs:/var/log/apache2:rw
       # Mount WebCatalogEngine from legacy server
-      - ./WebCatalogEngine:/usr/lib/cgi-bin/WebCatalogEngine:rw
+      - ../WebCatalogEngine:/usr/lib/cgi-bin/WebCatalogEngine:rw
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data

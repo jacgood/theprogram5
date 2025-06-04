@@ -8,7 +8,9 @@
       "Bash(mkdir:*)",
       "Bash(sudo chown:*)",
       "Bash(ls:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(./tests/run_tests.sh:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }
