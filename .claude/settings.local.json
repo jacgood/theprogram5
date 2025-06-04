@@ -10,7 +10,10 @@
       "Bash(ls:*)",
       "Bash(chmod:*)",
       "Bash(./tests/run_tests.sh:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(git commit:*)",
+      "Bash(./monitoring/scripts/system_monitor.sh:*)",
+      "Bash(./monitoring/scripts/performance_dashboard.sh:*)"
     ],
     "deny": []
   }

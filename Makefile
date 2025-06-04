@@ -63,8 +63,33 @@ fix-permissions: ## Fix file permissions for development
 	@echo "Fixing file permissions..."
 	./scripts/fix-permissions.sh
 
+# Performance monitoring commands
+monitor: ## Start performance monitoring
+	@echo "Starting performance monitoring..."
+	@./monitoring/scripts/system_monitor.sh continuous
+
+monitor-once: ## Run single monitoring collection
+	@echo "Running single monitoring collection..."
+	@./monitoring/scripts/system_monitor.sh once
+
+dashboard: ## Show performance dashboard
+	@echo "Starting performance dashboard..."
+	@./monitoring/scripts/performance_dashboard.sh realtime
+
+performance-report: ## Generate performance report
+	@echo "Generating performance report..."
+	@./monitoring/scripts/performance_dashboard.sh report
+
+benchmark: ## Run performance benchmarks
+	@echo "Running performance benchmarks..."
+	@./performance/tools/benchmark.sh full
+
+benchmark-quick: ## Run quick performance test
+	@echo "Running quick performance test..."
+	@./performance/tools/benchmark.sh single http://localhost:8080/theprogram/
+
 # Project setup
 setup: ## Initial project setup
 	@echo "Setting up project..."
-	@chmod +x tests/*.sh scripts/*.sh
+	@chmod +x tests/*.sh scripts/*.sh monitoring/scripts/*.sh performance/tools/*.sh
 	@echo "Project setup complete!"
