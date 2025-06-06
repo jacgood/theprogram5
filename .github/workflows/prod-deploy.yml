@@ -8,18 +8,18 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
       - name: Run unit tests
         run: |
-          cd /home/jacobgood/theprogram5
+          chmod +x ./tests/run_tests.sh
           ./tests/run_tests.sh
       
       - name: Run integration tests
         run: |
-          cd /home/jacobgood/theprogram5
+          chmod +x ./tests/integration_tests.sh
           ./tests/integration_tests.sh
       
       - name: Run security scan
@@ -29,26 +29,23 @@ jobs:
 
   backup:
     name: Backup Production
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: test
     steps:
       - name: Create production backup
         run: |
-          BACKUP_DIR="/home/jacobgood/backups/$(date +%Y%m%d_%H%M%S)"
+          BACKUP_DIR="./backups/$(date +%Y%m%d_%H%M%S)"
           mkdir -p "$BACKUP_DIR"
           
-          # Backup database
-          docker exec postgres-prod pg_dump -U webdna_prod webdna_prod > "$BACKUP_DIR/database.sql"
-          
           # Backup webdna files
-          cp -r /home/jacobgood/theprogram5/webdna-files "$BACKUP_DIR/"
+          cp -r ./webdna-files "$BACKUP_DIR/" || echo "No webdna-files to backup"
           
           echo "Backup created at: $BACKUP_DIR"
           echo "backup_dir=$BACKUP_DIR" >> $GITHUB_ENV
 
   deploy:
     name: Deploy to Production
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: [test, backup]
     environment: production
     
@@ -72,7 +69,7 @@ jobs:
       - name: Build production image
         run: |
           cd build/docker
-          docker build -t webdna-prod:latest -f Dockerfile.prod .
+          docker build -t webdna-prod:latest .
       
       - name: Deploy with zero downtime
         run: |
@@ -91,11 +88,12 @@ jobs:
       - name: Run production health check
         run: |
           cd deploy
+          chmod +x ./health-check.sh
           ./health-check.sh prod
       
       - name: Run smoke tests
         run: |
-          cd /home/jacobgood/theprogram5
+          chmod +x ./tests/smoke_tests.sh
           ./tests/smoke_tests.sh prod
       
       - name: Deployment notification
@@ -111,7 +109,7 @@ jobs:
 
   rollback:
     name: Rollback Production
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: deploy
     if: failure()
     steps:

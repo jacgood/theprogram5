@@ -8,23 +8,23 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
       - name: Run unit tests
         run: |
-          cd /home/jacobgood/theprogram5
+          chmod +x ./tests/run_tests.sh
           ./tests/run_tests.sh
       
       - name: Run integration tests
         run: |
-          cd /home/jacobgood/theprogram5
+          chmod +x ./tests/integration_tests.sh
           ./tests/integration_tests.sh
 
   deploy:
     name: Deploy to Development
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: test
     environment: development
     
@@ -68,11 +68,12 @@ jobs:
       - name: Run health check
         run: |
           cd deploy
+          chmod +x ./health-check.sh
           ./health-check.sh dev
       
       - name: Run smoke tests
         run: |
-          cd /home/jacobgood/theprogram5
+          chmod +x ./tests/smoke_tests.sh
           ./tests/smoke_tests.sh dev
       
       - name: Deployment notification
