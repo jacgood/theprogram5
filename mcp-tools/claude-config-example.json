@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "puppeteer": {
-      "command": "node",
-      "args": ["/home/jacobgood/theprogram5/mcp-tools/puppeteer-server/index.js"],
-      "env": {}
-    }
-  }
-}
