@@ -1,0 +1,85 @@
+name: Development Deployment
+
+on:
+  push:
+    branches: [ dev ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run unit tests
+        run: |
+          cd /home/jacobgood/theprogram5
+          ./tests/run_tests.sh
+      
+      - name: Run integration tests
+        run: |
+          cd /home/jacobgood/theprogram5
+          ./tests/integration_tests.sh
+
+  deploy:
+    name: Deploy to Development
+    runs-on: self-hosted
+    needs: test
+    environment: development
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create development .env file
+        run: |
+          cat > deploy/.env.dev << EOF
+          NODE_ENV=development
+          PORT=3000
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_NAME=webdna_dev
+          DB_USER=webdna_dev
+          DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}
+          WEBDNA_ADMIN_PASSWORD=${{ secrets.DEV_WEBDNA_ADMIN_PASSWORD }}
+          LOG_LEVEL=debug
+          EOF
+      
+      - name: Stop development services
+        run: |
+          cd deploy
+          docker compose -f docker-compose.yml --env-file .env.dev down || true
+      
+      - name: Build development image
+        run: |
+          cd build/docker
+          docker build -t webdna-dev:latest .
+      
+      - name: Start development services
+        run: |
+          cd deploy
+          docker compose -f docker-compose.yml --env-file .env.dev up -d
+      
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 10
+      
+      - name: Run health check
+        run: |
+          cd deploy
+          ./health-check.sh dev
+      
+      - name: Run smoke tests
+        run: |
+          cd /home/jacobgood/theprogram5
+          ./tests/smoke_tests.sh dev
+      
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Development deployment successful!"
+          else
+            echo "❌ Development deployment failed!"
+          fi

@@ -14,7 +14,9 @@
       "Bash(git commit:*)",
       "Bash(./monitoring/scripts/system_monitor.sh:*)",
       "Bash(./monitoring/scripts/performance_dashboard.sh:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(git add:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

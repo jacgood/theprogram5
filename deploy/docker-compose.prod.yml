@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  webdna-server:
+    build:
+      context: ..
+      dockerfile: build/docker/Dockerfile
+    container_name: webdna-server-prod
+    command: ["/usr/local/bin/start-webdna-prod.sh"]
+    ports:
+      - "127.0.0.1:8081:80"  # Only expose locally for reverse proxy
+    volumes:
+      - ../html:/var/www/html:rw
+      - ../logs:/var/log/apache2:rw
+      - ../WebCatalogEngine:/usr/lib/cgi-bin/WebCatalogEngine:rw
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+      - APACHE_LOG_DIR=/var/log/apache2
+      - HOST_UID=1000
+      - HOST_GID=1000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=webdna_main
+      - DB_USER=${DB_USER:-webdna_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - ENVIRONMENT=production
+      - BASE_URL=https://dev.goodvaluation.com/theprogram
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/WebCatalog"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - webdna-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: webdna-postgres-prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../config/postgres:/docker-entrypoint-initdb.d:ro
+    environment:
+      - POSTGRES_DB=webdna_main
+      - POSTGRES_USER=${DB_USER:-webdna_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-webdna_user} -d webdna_main"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - webdna-network
+
+  # Nginx reverse proxy for SSL termination
+  nginx:
+    image: nginx:alpine
+    container_name: webdna-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      - webdna-server
+    restart: unless-stopped
+    networks:
+      - webdna-network
+
+volumes:
+  postgres_data:
+  nginx_cache:
+
+networks:
+  webdna-network:
+    driver: bridge

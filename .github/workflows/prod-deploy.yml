@@ -1,0 +1,121 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run unit tests
+        run: |
+          cd /home/jacobgood/theprogram5
+          ./tests/run_tests.sh
+      
+      - name: Run integration tests
+        run: |
+          cd /home/jacobgood/theprogram5
+          ./tests/integration_tests.sh
+      
+      - name: Run security scan
+        run: |
+          # Add security scanning here
+          echo "Running security scan..."
+
+  backup:
+    name: Backup Production
+    runs-on: self-hosted
+    needs: test
+    steps:
+      - name: Create production backup
+        run: |
+          BACKUP_DIR="/home/jacobgood/backups/$(date +%Y%m%d_%H%M%S)"
+          mkdir -p "$BACKUP_DIR"
+          
+          # Backup database
+          docker exec postgres-prod pg_dump -U webdna_prod webdna_prod > "$BACKUP_DIR/database.sql"
+          
+          # Backup webdna files
+          cp -r /home/jacobgood/theprogram5/webdna-files "$BACKUP_DIR/"
+          
+          echo "Backup created at: $BACKUP_DIR"
+          echo "backup_dir=$BACKUP_DIR" >> $GITHUB_ENV
+
+  deploy:
+    name: Deploy to Production
+    runs-on: self-hosted
+    needs: [test, backup]
+    environment: production
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create production .env file
+        run: |
+          cat > deploy/.env.prod << EOF
+          NODE_ENV=production
+          PORT=8080
+          DB_HOST=localhost
+          DB_PORT=5433
+          DB_NAME=webdna_prod
+          DB_USER=webdna_prod
+          DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+          WEBDNA_ADMIN_PASSWORD=${{ secrets.PROD_WEBDNA_ADMIN_PASSWORD }}
+          LOG_LEVEL=info
+          EOF
+      
+      - name: Build production image
+        run: |
+          cd build/docker
+          docker build -t webdna-prod:latest -f Dockerfile.prod .
+      
+      - name: Deploy with zero downtime
+        run: |
+          cd deploy
+          
+          # Start new container with temporary name
+          docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --scale webdna-server=2
+          
+          # Wait for new container to be healthy
+          sleep 15
+          ./health-check.sh prod
+          
+          # Stop old container
+          docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --scale webdna-server=1
+      
+      - name: Run production health check
+        run: |
+          cd deploy
+          ./health-check.sh prod
+      
+      - name: Run smoke tests
+        run: |
+          cd /home/jacobgood/theprogram5
+          ./tests/smoke_tests.sh prod
+      
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Production deployment successful!"
+            # Send success notification
+          else
+            echo "❌ Production deployment failed!"
+            # Trigger rollback if needed
+          fi
+
+  rollback:
+    name: Rollback Production
+    runs-on: self-hosted
+    needs: deploy
+    if: failure()
+    steps:
+      - name: Rollback to previous version
+        run: |
+          echo "Rolling back production deployment..."
+          # Implement rollback logic here

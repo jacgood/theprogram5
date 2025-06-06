@@ -88,13 +88,13 @@ RUN mkdir -p \
 
 # Copy configuration files
 COPY config/webdna/corrected-webdna.conf /etc/apache2/mods-available/webdna.conf
-COPY config/apache/webdna-site.conf /etc/apache2/sites-available/webdna-site.conf
+COPY config/apache/webdna-site*.conf /etc/apache2/sites-available/
 
-# Copy startup script
-COPY build/docker/scripts/start-webdna.sh /usr/local/bin/start-webdna.sh
+# Copy startup scripts
+COPY build/docker/scripts/start-webdna*.sh /usr/local/bin/
 
-# Set proper permissions for startup script
-RUN chmod +x /usr/local/bin/start-webdna.sh
+# Set proper permissions for startup scripts
+RUN chmod +x /usr/local/bin/start-webdna*.sh
 
 # Disable default Apache site and enable WebDNA site
 RUN a2dissite 000-default && a2ensite webdna-site

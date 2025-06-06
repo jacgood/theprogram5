@@ -11,31 +11,31 @@ This is a Dockerized WebDNA Server v8.6.5 setup running on Ubuntu 22.04 with Apa
 ### Docker Operations
 ```bash
 # Build and start the container
-docker-compose up --build -d
+docker compose up --build -d
 
 # Stop the container
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Restart the container
-docker-compose restart
+docker compose restart
 
 # Access container shell
-docker-compose exec webdna-server bash
+docker compose exec webdna-server bash
 
 # Check container health
-docker-compose ps
+docker compose ps
 ```
 
 ### Development Commands
 ```bash
 # Test Apache configuration (inside container)
-docker-compose exec webdna-server apache2ctl configtest
+docker compose exec webdna-server apache2ctl configtest
 
 # Reload Apache configuration (inside container)
-docker-compose exec webdna-server apache2ctl graceful
+docker compose exec webdna-server apache2ctl graceful
 
 # View Apache error logs
 tail -f logs/error.log
