@@ -72,11 +72,11 @@ main() {
     # Ensure we have a working container before testing
     log "Ensuring container is running with new configuration..."
     echo "Stopping WebDNA services..."
-    cd deploy && docker compose down
+    cd "$PROJECT_ROOT/deploy" && docker compose down
     echo "Building WebDNA Docker image..."
-    cd deploy && docker compose build
+    cd "$PROJECT_ROOT/deploy" && docker compose build
     echo "Starting WebDNA services..."
-    cd deploy && docker compose up -d
+    cd "$PROJECT_ROOT/deploy" && docker compose up -d
     
     echo ""
     log "Starting test execution..."
