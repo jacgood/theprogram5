@@ -71,11 +71,12 @@ main() {
     
     # Ensure we have a working container before testing
     log "Ensuring container is running with new configuration..."
-    make down 2>/dev/null || true
-    make build up || {
-        error "Failed to start container with new configuration"
-        exit 1
-    }
+    echo "Stopping WebDNA services..."
+    cd deploy && docker compose down
+    echo "Building WebDNA Docker image..."
+    cd deploy && docker compose build
+    echo "Starting WebDNA services..."
+    cd deploy && docker compose up -d
     
     echo ""
     log "Starting test execution..."
