@@ -10,6 +10,13 @@ jobs:
     name: Run Tests
     runs-on: self-hosted
     steps:
+      - name: Clean workspace
+        run: |
+          # Fix permissions on any files that might be owned by containers
+          sudo chown -R $USER:$USER . || true
+          # Clean up any existing containers
+          docker system prune -f || true
+      
       - uses: actions/checkout@v4
       
       - name: Validate Docker files
@@ -51,6 +58,11 @@ jobs:
     needs: test
     
     steps:
+      - name: Clean workspace
+        run: |
+          # Fix permissions on any files that might be owned by containers
+          sudo chown -R $USER:$USER . || true
+      
       - uses: actions/checkout@v4
       
       - name: Deploy to Development
