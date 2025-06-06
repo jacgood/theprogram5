@@ -12,10 +12,11 @@ jobs:
     steps:
       - name: Clean workspace
         run: |
-          # Fix permissions on any files that might be owned by containers
-          sudo chown -R $USER:$USER . || true
-          # Clean up any existing containers
+          # Clean up any existing containers first
           docker system prune -f || true
+          # Remove any files that might have permission issues
+          find . -name '*.log' -type f -delete 2>/dev/null || true
+          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
       
       - uses: actions/checkout@v4
       
@@ -69,8 +70,9 @@ jobs:
     steps:
       - name: Clean workspace
         run: |
-          # Fix permissions on any files that might be owned by containers
-          sudo chown -R $USER:$USER . || true
+          # Clean up any files that might have permission issues
+          find . -name '*.log' -type f -delete 2>/dev/null || true
+          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
       
       - uses: actions/checkout@v4
       
@@ -95,8 +97,9 @@ jobs:
     steps:
       - name: Clean workspace
         run: |
-          # Fix permissions on any files that might be owned by containers
-          sudo chown -R $USER:$USER . || true
+          # Clean up any files that might have permission issues
+          find . -name '*.log' -type f -delete 2>/dev/null || true
+          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
       
       - uses: actions/checkout@v4
       
@@ -131,8 +134,9 @@ jobs:
     steps:
       - name: Clean workspace
         run: |
-          # Fix permissions on any files that might be owned by containers
-          sudo chown -R $USER:$USER . || true
+          # Clean up any files that might have permission issues
+          find . -name '*.log' -type f -delete 2>/dev/null || true
+          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
       
       - uses: actions/checkout@v4
       
