@@ -10,15 +10,19 @@ jobs:
     name: Run Tests
     runs-on: self-hosted
     steps:
-      - name: Clean workspace
+      - name: Clean workspace manually
         run: |
           # Clean up any existing containers first
           docker system prune -f || true
-          # Remove any files that might have permission issues
-          find . -name '*.log' -type f -delete 2>/dev/null || true
-          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
+          # Remove problematic files before checkout
+          rm -rf logs/ || true
+          rm -f **/*.log || true
+          # Clean workspace for fresh checkout
+          git clean -fdx || true
       
       - uses: actions/checkout@v4
+        with:
+          clean: false
       
       - name: Validate Docker files
         run: |
@@ -68,13 +72,17 @@ jobs:
     runs-on: self-hosted
     needs: test
     steps:
-      - name: Clean workspace
+      - name: Clean workspace manually
         run: |
-          # Clean up any files that might have permission issues
-          find . -name '*.log' -type f -delete 2>/dev/null || true
-          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
+          # Remove problematic files before checkout
+          rm -rf logs/ || true
+          rm -f **/*.log || true
+          # Clean workspace for fresh checkout
+          git clean -fdx || true
       
       - uses: actions/checkout@v4
+        with:
+          clean: false
       
       - name: Create production backup
         run: |
@@ -95,13 +103,17 @@ jobs:
     needs: [test, backup]
     
     steps:
-      - name: Clean workspace
+      - name: Clean workspace manually
         run: |
-          # Clean up any files that might have permission issues
-          find . -name '*.log' -type f -delete 2>/dev/null || true
-          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
+          # Remove problematic files before checkout
+          rm -rf logs/ || true
+          rm -f **/*.log || true
+          # Clean workspace for fresh checkout
+          git clean -fdx || true
       
       - uses: actions/checkout@v4
+        with:
+          clean: false
       
       - name: Deploy to Production
         run: |
@@ -132,13 +144,17 @@ jobs:
     needs: deploy
     if: failure()
     steps:
-      - name: Clean workspace
+      - name: Clean workspace manually
         run: |
-          # Clean up any files that might have permission issues
-          find . -name '*.log' -type f -delete 2>/dev/null || true
-          find . -name 'logs' -type d -exec rm -rf {} + 2>/dev/null || true
+          # Remove problematic files before checkout
+          rm -rf logs/ || true
+          rm -f **/*.log || true
+          # Clean workspace for fresh checkout
+          git clean -fdx || true
       
       - uses: actions/checkout@v4
+        with:
+          clean: false
       
       - name: Rollback Production
         run: |
